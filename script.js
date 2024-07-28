@@ -15,7 +15,6 @@
         for (const article of articles) {
             const url = article.querySelector('a').href
             const companyName = article.querySelector('a.inline-flex.items-center.font-medium.text-gray-900').innerText;
-            console.log("🚀 ~ addCompanyData ~ companyName:", companyName)
             const jobTitle = article.querySelector('a.text-xl.font-medium.text-gray-900.md\\:w-112.md\\:truncate').innerText
             // maybe in future check if addedDate is over a certain time period
             const job = {
@@ -25,11 +24,17 @@
             }
 
             if (!companyData.has(companyName)) {
+                console.log("Adding:", companyName)
                 companyData.set(companyName, {
                     jobs: []
                 })
             }
-            companyData.get(companyName).jobs.push(job)
+
+            // Check if the job URL already exists in the jobs array
+            const companyJobs = companyData.get(companyName).jobs
+            if (!companyJobs.some(existingJob => existingJob.url === url)) {
+                companyJobs.push(job)
+            }
         }
         console.log(`There are now ${companyData.size} companies`)
 
@@ -94,8 +99,8 @@
     async function navigatePages() {
         await openFile()
 
-        for (let i = 0; i < 7; i++) {
-            await fetchCompanyDataWithRetry(5, 1000)
+        for (let i = 0; i < 21; i++) {
+            await fetchCompanyDataWithRetry(21, 1000)
             console.log(`On page ${i + 1}`)
             await clickNext()
         }
