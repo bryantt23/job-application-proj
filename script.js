@@ -15,14 +15,23 @@
         for (const article of articles) {
             const url = article.querySelector('a').href
             const companyName = article.querySelector('a.inline-flex.items-center.font-medium.text-gray-900').innerText;
+            console.log("🚀 ~ addCompanyData ~ companyName:", companyName)
+            const jobTitle = article.querySelector('a.text-xl.font-medium.text-gray-900.md\\:w-112.md\\:truncate').innerText
             // maybe in future check if addedDate is over a certain time period
+            const job = {
+                addedDate: Date.now(),
+                url,
+                jobTitle
+            }
+
             if (!companyData.has(companyName)) {
                 companyData.set(companyName, {
-                    addedDate: Date.now(),
-                    url
+                    jobs: []
                 })
             }
+            companyData.get(companyName).jobs.push(job)
         }
+        console.log(`There are now ${companyData.size} companies`)
 
         return articles.length > 0;
     }
@@ -85,8 +94,9 @@
     async function navigatePages() {
         await openFile()
 
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 7; i++) {
             await fetchCompanyDataWithRetry(5, 1000)
+            console.log(`On page ${i + 1}`)
             await clickNext()
         }
 
@@ -94,11 +104,28 @@
     }
 
     async function clickNext() {
-        const nextButton = document.querySelector('nav[aria-label="pagination"] .flex.flex-row-reverse.h-full.w-full.items-center.justify-center[href*="?page="]');
+        const previousUrl = window.location.href
+        const aTags = Array.from(document.querySelectorAll('a'))
+        const nextButton = aTags
+            .find(a => Array.from(a.childNodes).some(child => child.textContent === 'Next'))
 
         if (nextButton) {
             nextButton.click()
-            await delay(3000)
+            // Wait until the URL changes
+            await new Promise(resolve => {
+                const checkUrlChange = () => {
+                    if (window.location.href !== previousUrl) {
+                        resolve()
+                    }
+                    else {
+                        requestAnimationFrame(checkUrlChange)
+                    }
+                }
+                requestAnimationFrame(checkUrlChange)
+            })
+        }
+        else {
+            throw new Error('Next button not found')
         }
     }
 
