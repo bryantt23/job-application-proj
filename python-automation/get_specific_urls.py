@@ -3,15 +3,25 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import time
+import json
 
-# List of URLs from Himalayas
-urls = [
-    "https://himalayas.app/companies/rollstack/jobs/middle-senior-software-engineer-typescript-latin-america",
-    "https://himalayas.app/companies/woodland-power-products/jobs/customer-service-representative",
-    "https://himalayas.app/companies/moxie/jobs/physician-medical-director-for-medspas-residing-ca-9633891971",
-    "https://himalayas.app/companies/oowlish-technology/jobs/backend-quality-assurance-engineer-2020719466"
-    # Add more URLs as needed
-]
+file_path = 'C:/Users/bryan/Desktop/companyDataOutput.json'
+try:
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+        # print(data)
+except FileNotFoundError:
+    print(f"File not found: {file_path}")
+except json.JSONEncoder:
+    print("Failed to decode JSON from the file.")
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+values = list(data.values())[:5]
+print(values)
+urls = list(map(lambda elem: elem["jobs"][0]["url"], values))
+
+print(urls)
 
 # Set up Chrome options
 options = Options()
@@ -35,7 +45,7 @@ for url in urls:
 
         # Open the URL
         driver.get(url)
-        time.sleep(3)  # Wait for the page to load
+        time.sleep(1)  # Wait for the page to load
 
         # Execute a script to get the href of the "Apply" button without clicking it
         application_urls = driver.execute_script(

@@ -91,7 +91,7 @@
         const url = URL.createObjectURL(blog)
         const a = document.createElement('a')
         a.href = url;
-        a.download = 'companyData.json'
+        a.download = 'companyDataOutput.json'
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
