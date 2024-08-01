@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # Directory to watch
     directory_to_watch = os.path.dirname(os.path.abspath(__file__))
     # Script to run when changes are detected
-    script_to_run = os.path.join(directory_to_watch, 'job_apply.py')
+    script_to_run = os.path.join(directory_to_watch, 'get_specific_urls.py')
 
     watcher = Watcher(directory_to_watch, script_to_run)
     watcher.run()

@@ -2,26 +2,26 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-import time
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import json
 
 file_path = 'C:/Users/bryan/Desktop/companyDataOutput.json'
 try:
     with open(file_path, 'r') as f:
         data = json.load(f)
-        # print(data)
 except FileNotFoundError:
     print(f"File not found: {file_path}")
-except json.JSONEncoder:
+    data = {}
+except json.JSONDecodeError:
     print("Failed to decode JSON from the file.")
+    data = {}
 except Exception as e:
     print(f"An error occurred: {e}")
+    data = {}
 
 values = list(data.values())[:5]
-print(values)
 urls = list(map(lambda elem: elem["jobs"][0]["url"], values))
-
-print(urls)
 
 # Set up Chrome options
 options = Options()
@@ -45,17 +45,19 @@ for url in urls:
 
         # Open the URL
         driver.get(url)
-        time.sleep(1)  # Wait for the page to load
 
-        # Execute a script to get the href of the "Apply" button without clicking it
-        application_urls = driver.execute_script(
-            "return Array.from(document.querySelectorAll('a')).map(a => a.href).filter(href => href && href.includes('apply'))"
-        )
+        # Adjust the zoom level
+        driver.execute_script("document.body.style.zoom='10%'")
 
-        # Print the URL if found
-        if application_urls:
-            print(f"Application URL: {application_urls[0]}")
-        else:
+        # Wait for the "Apply" button to be present
+        try:
+            apply_button = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located(
+                    (By.XPATH, "//a[contains(text(), 'Apply')]"))
+            )
+            application_url = apply_button.get_attribute('href')
+            print(f"Application URL: {application_url}")
+        except Exception as e:
             print("Apply button not found.")
 
         # Close the current tab
