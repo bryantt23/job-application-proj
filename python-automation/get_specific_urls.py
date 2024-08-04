@@ -6,6 +6,23 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import json
 
+URLS_TO_GET = 14
+
+
+def open_file(file_path):
+    try:
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return {}
+    except json.JSONDecodeError:
+        print("Failed to decode JSON from the file.")
+        return {}
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return {}
+
 
 def get_job_url(driver, job):
     # Wait for the "Apply" button to be present
@@ -27,67 +44,71 @@ def get_job_url(driver, job):
         print(f"Error: {e}")
 
 
-URLS_TO_GET = 11
-file_path_input = 'C:/Users/bryan/Desktop/companyDataOutput.json'
-file_path_output = 'C:/Users/bryan/Desktop/companyDataOutputWithUrls.json'
-try:
-    with open(file_path_input, 'r') as f:
-        data = json.load(f)
-except FileNotFoundError:
-    print(f"File not found: {file_path_input}")
-    data = {}
-except json.JSONDecodeError:
-    print("Failed to decode JSON from the file.")
-    data = {}
-except Exception as e:
-    print(f"An error occurred: {e}")
-    data = {}
+def gather_urls(driver, data):
+    # TODO make it go through the entire dict
+    keys = list(data.keys())[:URLS_TO_GET]
 
-# TODO make it go through the entire dict
-keys = list(data.keys())[:URLS_TO_GET]
+    # Loop through each URL
+    for key in keys:
+        try:
+            # Open a new tab and switch to it
+            driver.execute_script("window.open('');")
+            driver.switch_to.window(driver.window_handles[-1])
 
-# Set up Chrome options
-options = Options()
-options.headless = False  # Run in non-headless mode to see the browser window
-options.add_argument('--disable-gpu')
-options.add_argument('--window-size=1920x1080')
+            # Open the URLs
+            value = data[key]
+            jobs = value["jobs"]
 
-# Set up ChromeDriver service
-chrome_driver_path = './chromedriver/chromedriver.exe'
-service = Service(chrome_driver_path)
+            for job in jobs:
+                get_job_url(driver, job)
 
-# Initialize the Chrome driver
-driver = webdriver.Chrome(service=service, options=options)
+            # Close the current tab
+            driver.close()
+            # Switch back to the original tab
+            driver.switch_to.window(driver.window_handles[0])
 
-# Loop through each URL
-for key in keys:
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    # Quit the driver
+    driver.quit()
+
+
+def output_to_file(data, file_path):
+    # Write the dictionary to a JSON file
     try:
-        # Open a new tab and switch to it
-        driver.execute_script("window.open('');")
-        driver.switch_to.window(driver.window_handles[-1])
-
-        # Open the URLs
-        value = data[key]
-        jobs = value["jobs"]
-
-        for job in jobs:
-            get_job_url(driver, job)
-
-        # Close the current tab
-        driver.close()
-        # Switch back to the original tab
-        driver.switch_to.window(driver.window_handles[0])
-
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=4)
+            print(f"Data successfully written to {file_path}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred while writing to the file: {e}")
 
-# Quit the driver
-driver.quit()
 
-# Write the dictionary to a JSON file
-try:
-    with open(file_path_output, 'w') as f:
-        json.dump(data, f, indent=4)
-        print(f"Data successfully written to {file_path_output}")
-except Exception as e:
-    print(f"An error occurred while writing to the file: {e}")
+def main():
+    file_path_input = 'C:/Users/bryan/Desktop/companyDataOutput.json'
+    file_path_output = 'C:/Users/bryan/Desktop/companyDataOutputWithUrls.json'
+    data = open_file(file_path_input)
+
+    # Set up Chrome options
+    options = Options()
+    options.headless = False  # Run in non-headless mode to see the browser window
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920x1080')
+
+    # Set up ChromeDriver service
+    chrome_driver_path = './chromedriver/chromedriver.exe'
+    service = Service(chrome_driver_path)
+
+    # Initialize the Chrome driver
+    driver = webdriver.Chrome(service=service, options=options)
+
+    try:
+        gather_urls(driver, data)
+    finally:
+        driver.quit()
+
+    output_to_file(data, file_path_output)
+
+
+if __name__ == "__main__":
+    main()
