@@ -6,7 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import json
 
-URLS_TO_GET = 3
+URLS_TO_GET = 7
 file_path_input = 'C:/Users/bryan/Desktop/companyDataOutput.json'
 file_path_output = 'C:/Users/bryan/Desktop/companyDataOutputWithUrls.json'
 try:
@@ -45,27 +45,29 @@ for key in keys:
         driver.execute_script("window.open('');")
         driver.switch_to.window(driver.window_handles[-1])
 
-        # Open the URL
+        # Open the URLs
         value = data[key]
-        job = value["jobs"][0]
-        url = job["url"]
-        driver.get(url)
+        jobs = value["jobs"]
 
-        # Adjust the zoom level
-        driver.execute_script("document.body.style.zoom='10%'")
+        for job in jobs:
+            url = job["url"]
+            driver.get(url)
 
-        # Wait for the "Apply" button to be present
-        try:
-            apply_button = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//a[contains(text(), 'Apply')]"))
-            )
-            application_url = apply_button.get_attribute('href')
-            print(f"Application URL: {application_url}")
-            job["job_url"] = application_url
-        except Exception as e:
-            job["job_url"] = "Not found"
-            print("Apply button not found.")
+            # Adjust the zoom level
+            driver.execute_script("document.body.style.zoom='10%'")
+
+            # Wait for the "Apply" button to be present
+            try:
+                apply_button = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, "//a[contains(text(), 'Apply')]"))
+                )
+                application_url = apply_button.get_attribute('href')
+                print(f"Application URL: {application_url}")
+                job["job_url"] = application_url
+            except Exception as e:
+                job["job_url"] = "Not found"
+                print("Apply button not found.")
 
         # Close the current tab
         driver.close()
