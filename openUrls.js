@@ -1,5 +1,5 @@
-const COMPANIES_TO_VISIT = 7
-let companiesVisited = 0
+const TABS_TO_OPEN = 21
+let tabsOpened = 0
 
 function getJsonData() {
     return new Promise(resolve => {
@@ -50,10 +50,10 @@ function openUrlsInNewTabs(data) {
                 window.open(job?.job_url, '_blank')
                 job.visitedOn = Date.now()
                 companyData.lastVisitedOn = Date.now()
+                tabsOpened++
             }
         }
-        companiesVisited++
-        if (companiesVisited === COMPANIES_TO_VISIT) {
+        if (tabsOpened >= TABS_TO_OPEN) {
             break
         }
     }
