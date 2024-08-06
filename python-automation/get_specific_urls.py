@@ -44,7 +44,16 @@ def get_job_url(driver, job):
         print(f"Error: {e}")
 
 
-def gather_urls(driver, data):
+def write_incremental_to_file(data, file_path):
+    try:
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=4)
+            print(f"Incremental update written to {file_path}")
+    except Exception as e:
+        print(f"An error occurred while writing to the file: {e}")
+
+
+def gather_urls(driver, data, file_path_output):
     # TODO make it go through the entire dict
     keys = list(data.keys())[:URLS_TO_GET]
 
@@ -60,7 +69,11 @@ def gather_urls(driver, data):
             jobs = value["jobs"]
 
             for job in jobs:
-                get_job_url(driver, job)
+                # Check if 'job_url' key exists and is not empty
+                if "job_url" not in job or not job["job_url"]:
+                    get_job_url(driver, job)
+                    # Write to file after processing each job
+                    write_incremental_to_file(data, file_path_output)
 
             # Close the current tab
             driver.close()
@@ -72,16 +85,6 @@ def gather_urls(driver, data):
 
     # Quit the driver
     driver.quit()
-
-
-def output_to_file(data, file_path):
-    # Write the dictionary to a JSON file
-    try:
-        with open(file_path, 'w') as f:
-            json.dump(data, f, indent=4)
-            print(f"Data successfully written to {file_path}")
-    except Exception as e:
-        print(f"An error occurred while writing to the file: {e}")
 
 
 def main():
@@ -103,11 +106,9 @@ def main():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        gather_urls(driver, data)
+        gather_urls(driver, data, file_path_output)
     finally:
         driver.quit()
-
-    output_to_file(data, file_path_output)
 
 
 if __name__ == "__main__":
