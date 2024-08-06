@@ -1,3 +1,6 @@
+const COMPANIES_TO_VISIT = 7
+let companiesVisited = 0
+
 function getJsonData() {
     return new Promise(resolve => {
         // Create an input element of type file
@@ -33,8 +36,8 @@ function getJsonData() {
 
 function openUrlsInNewTabs(data) {
     for (const companyName in data) {
-        const companydata = data[companyName]
-        const { jobs } = companydata
+        const companyData = data[companyName]
+        const { jobs } = companyData
 
         for (const job of jobs) {
             const jobUrl = job?.job_url
@@ -48,6 +51,10 @@ function openUrlsInNewTabs(data) {
                 job.visitedOn = Date.now()
                 companyData.lastVisitedOn = Date.now()
             }
+        }
+        companiesVisited++
+        if (companiesVisited === COMPANIES_TO_VISIT) {
+            break
         }
     }
 }
