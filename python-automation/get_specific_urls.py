@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import json
 
 URLS_TO_GET = 1000
+url_ct = 1
 
 
 def open_file(file_path):
@@ -24,7 +25,8 @@ def open_file(file_path):
         return {}
 
 
-def get_job_url(driver, job):
+def get_job_url(driver, job, company):
+    global url_ct
     # Wait for the "Apply" button to be present
     try:
         driver.get(job['url'])
@@ -36,7 +38,9 @@ def get_job_url(driver, job):
                 (By.XPATH, "//a[contains(text(), 'Apply')]"))
         )
         application_url = apply_button.get_attribute('href')
-        print(f"Application URL: {application_url}")
+        print(f"{url_ct}. Application URL: {
+              application_url} for company: {company}, job title: {job['jobTitle']}")
+        url_ct += 1
         job["job_url"] = application_url
     except Exception as e:
         job["job_url"] = "Not found"
@@ -66,7 +70,7 @@ def get_url(driver, data, key, file_path_output, get_only_first_job):
         for job in jobs:
             # Check if 'job_url' key exists and is not empty
             if "job_url" not in job or not job["job_url"]:
-                get_job_url(driver, job)
+                get_job_url(driver, job, key)
                 # Write to file after processing each job
                 write_incremental_to_file(data, file_path_output)
                 if get_only_first_job:
@@ -85,10 +89,12 @@ def gather_urls(driver, data, file_path_output):
     # TODO make it go through the entire dict
     keys = list(data.keys())[:URLS_TO_GET]
 
+    print('Gathering urls of first job')
     # Loop through each URL
     for key in keys:
         get_url(driver, data, key, file_path_output, get_only_first_job=True)
 
+    print('Gathering urls of rest of jobs')
     # Loop through each URL
     for key in keys:
         get_url(driver, data, key, file_path_output, get_only_first_job=False)
