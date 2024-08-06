@@ -32,15 +32,30 @@ function getJsonData() {
 }
 
 function openUrlsInNewTabs(data) {
-    for (const company in data) {
-        const { jobs } = data[company]
+    for (const companyName in data) {
+        const companydata = data[companyName]
+        const { jobs } = companydata
+
         for (const job of jobs) {
-            if (job?.job_url) {
+            const jobUrl = job?.job_url
+            const companyLastVisitedOn = companyData?.lastVisitedOn
+
+            // Check if the job has a URL and
+            // the company job urls have never been opened
+            // or they have been opened after a month has passed 
+            if (jobUrl && (companyLastVisitedOn === undefined || hasOneMonthPassed(companyLastVisitedOn))) {
                 window.open(job?.job_url, '_blank')
-                job.visited = true
+                job.visitedOn = Date.now()
+                companyData.lastVisitedOn = Date.now()
             }
         }
     }
+}
+
+function hasOneMonthPassed(timestampMs) {
+    const currentTime = new Date().getTime()
+    const oneMonthInMs = 30 * 24 * 60 * 60 * 1000;
+    return currentTime >= timestampMs + oneMonthInMs
 }
 
 async function start() {
