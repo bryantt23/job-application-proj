@@ -53,35 +53,45 @@ def write_incremental_to_file(data, file_path):
         print(f"An error occurred while writing to the file: {e}")
 
 
+def get_url(driver, data, key, file_path_output, get_only_first_job):
+    try:
+        # Open a new tab and switch to it
+        driver.execute_script("window.open('');")
+        driver.switch_to.window(driver.window_handles[-1])
+
+        # Open the URLs
+        value = data[key]
+        jobs = value["jobs"]
+
+        for job in jobs:
+            # Check if 'job_url' key exists and is not empty
+            if "job_url" not in job or not job["job_url"]:
+                get_job_url(driver, job)
+                # Write to file after processing each job
+                write_incremental_to_file(data, file_path_output)
+                if get_only_first_job:
+                    break
+
+        # Close the current tab
+        driver.close()
+        # Switch back to the original tab
+        driver.switch_to.window(driver.window_handles[0])
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 def gather_urls(driver, data, file_path_output):
     # TODO make it go through the entire dict
     keys = list(data.keys())[:URLS_TO_GET]
 
     # Loop through each URL
     for key in keys:
-        try:
-            # Open a new tab and switch to it
-            driver.execute_script("window.open('');")
-            driver.switch_to.window(driver.window_handles[-1])
+        get_url(driver, data, key, file_path_output, get_only_first_job=True)
 
-            # Open the URLs
-            value = data[key]
-            jobs = value["jobs"]
-
-            for job in jobs:
-                # Check if 'job_url' key exists and is not empty
-                if "job_url" not in job or not job["job_url"]:
-                    get_job_url(driver, job)
-                    # Write to file after processing each job
-                    write_incremental_to_file(data, file_path_output)
-
-            # Close the current tab
-            driver.close()
-            # Switch back to the original tab
-            driver.switch_to.window(driver.window_handles[0])
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
+    # Loop through each URL
+    for key in keys:
+        get_url(driver, data, key, file_path_output, get_only_first_job=False)
 
     # Quit the driver
     driver.quit()
