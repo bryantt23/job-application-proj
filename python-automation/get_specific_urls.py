@@ -6,12 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import json
 
-URLS_TO_GET = 14
+URLS_TO_GET = 1000
 
 
 def open_file(file_path):
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         print(f"File not found: {file_path}")
