@@ -1,4 +1,4 @@
-const TABS_TO_OPEN = 7
+const TABS_TO_OPEN = 15
 let tabsOpened = 0
 
 function getJsonData() {
@@ -34,29 +34,44 @@ function getJsonData() {
     })
 }
 
+// Function to determine if a company can be visited based on its last visit timestamp
+function canVisitCompany(companyLastVisitedOn) {
+    return (companyLastVisitedOn === undefined || hasOneMonthPassed(companyLastVisitedOn))
+}
+
 function openUrlsInNewTabs(data) {
+    console.log('Starting to open tabs...');
     for (const companyName in data) {
         const companyData = data[companyName]
         const { jobs } = companyData
 
-        for (const job of jobs) {
-            const jobUrl = job?.job_url
-            const companyLastVisitedOn = companyData?.lastVisitedOn
+        const companyLastVisitedOn = companyData?.lastVisitedOn
+        const isCompanyVisitable = canVisitCompany(companyLastVisitedOn)
 
-            // Check if the job has a URL and
-            // the company job urls have never been opened
-            // or they have been opened after a month has passed 
-            if (jobUrl && (companyLastVisitedOn === undefined || hasOneMonthPassed(companyLastVisitedOn))) {
-                window.open(job?.job_url, '_blank')
-                job.visitedOn = Date.now()
-                companyData.lastVisitedOn = Date.now()
-                tabsOpened++
+        // the company job urls have never been opened
+        // or they have been opened after a month has passed 
+        if (isCompanyVisitable) {
+            for (const job of jobs) {
+                const jobUrl = job?.job_url
+
+                // Check if the job has a URL and
+                if (jobUrl) {
+                    console.log(`Opening job from company: ${companyName}`)
+                    if (jobUrl !== 'Not found') {
+                        window.open(job?.job_url, '_blank')
+                    }
+                    job.visitedOn = Date.now()
+                    companyData.lastVisitedOn = Date.now()
+                    tabsOpened++
+                }
             }
         }
+
         if (tabsOpened >= TABS_TO_OPEN) {
             break
         }
     }
+    console.log('Finished opening tabs.');
 }
 
 function hasOneMonthPassed(timestampMs) {
