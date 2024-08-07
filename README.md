@@ -8,13 +8,13 @@ This project automates the process of gathering job URLs from a job site, saving
 
 2. **Extract Application URLs**: Run `get_specific_urls.py` using Python to generate `companyDataOutputWithUrls.json` with direct application URLs.
 
-3. **Open Application URLs**: Use `openUrls.js` in the browser console to open each job application URL in new tabs, marking them as visited.
+3. **Open Application URLs**: Use `openUrls.js` in the browser console to open each job application URL in new tabs, marking them as visited, and creating a new file `companyDataOutputWithVisits.json`.
 
 ## Files
 
 - `gatherUrls.js`: JavaScript code to run in the browser console to gather job URLs and save them to a JSON file.
 - `get_specific_urls.py`: Python script that processes the JSON file to extract specific application URLs.
-- `openUrls.js`: JavaScript code to run in the browser console to open job application URLs in new tabs.
+- `openUrls.js`: JavaScript code to run in the browser console to open job application URLs in new tabs and save an updated JSON file.
 
 ## Instructions
 
@@ -44,7 +44,7 @@ This project automates the process of gathering job URLs from a job site, saving
 3. Copy the contents of `openUrls.js` and paste it into the console.
 4. Run the script by pressing Enter.
 5. The script will prompt you to select `companyDataOutputWithUrls.json`.
-6. After selecting the file, the script will open each job application URL in a new tab and mark them as visited for you to apply using browser extensions.
+6. After selecting the file, the script will open each job application URL in a new tab, mark them as visited, and create a new file `companyDataOutputWithVisits.json`.
 
 ## Notes
 
@@ -59,3 +59,6 @@ This project automates the process of gathering job URLs from a job site, saving
 - Selenium WebDriver
 - Google Chrome browser with the correct version of `chromedriver`
 
+## Compatibility
+
+- The output files from each step are backward compatible and can be used as input files for previous steps if needed. This ensures flexibility and ease of use across different stages of the job application process.
