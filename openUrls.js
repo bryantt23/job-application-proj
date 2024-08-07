@@ -1,4 +1,4 @@
-const TABS_TO_OPEN = 21
+const TABS_TO_OPEN = 7
 let tabsOpened = 0
 
 function getJsonData() {
@@ -65,9 +65,20 @@ function hasOneMonthPassed(timestampMs) {
     return currentTime >= timestampMs + oneMonthInMs
 }
 
+function downloadJson(data, fileName = 'updated_jobs.json') {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 4))
+    const downloadAnchor = document.createElement('a')
+    downloadAnchor.setAttribute('href', dataStr)
+    downloadAnchor.setAttribute('download', fileName)
+    document.body.appendChild(downloadAnchor)
+    downloadAnchor.click()
+    downloadAnchor.remove()
+}
+
 async function start() {
     const jsonData = await getJsonData()
     openUrlsInNewTabs(jsonData)
+    downloadJson(jsonData, 'companyDataOutputWithVisits.json')
 }
 
 start()
