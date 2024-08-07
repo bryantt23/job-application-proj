@@ -27,6 +27,7 @@ def open_file(file_path):
 
 def get_job_url(driver, job, company):
     global url_ct
+
     # Wait for the "Apply" button to be present
     try:
         driver.get(job['url'])
@@ -38,8 +39,10 @@ def get_job_url(driver, job, company):
                 (By.XPATH, "//a[contains(text(), 'Apply')]"))
         )
         application_url = apply_button.get_attribute('href')
-        print(f"{url_ct}. Application URL: {
-              application_url} for company: {company}, job title: {job['jobTitle']}")
+
+        print(f"{url_ct}. Application URL: {application_url} for company: {
+              company}, job title: {job['jobTitle']}")
+
         url_ct += 1
         job["job_url"] = application_url
     except Exception as e:
@@ -85,22 +88,44 @@ def get_url(driver, data, key, file_path_output, get_only_first_job):
         print(f"An error occurred: {e}")
 
 
+def are_there_urls_to_gather(data, keys):
+    for key in keys:
+        value = data[key]
+        jobs = value["jobs"]
+        for job in jobs:
+            # Check if 'job_url' key exists and is not empty
+            if "job_url" not in job or not job["job_url"]:
+                return True
+
+    print('All urls have been gathered')
+    return False
+
+
 def gather_urls(driver, data, file_path_output):
-    # TODO make it go through the entire dict
     keys = list(data.keys())[:URLS_TO_GET]
 
-    print('Gathering urls of first job')
-    # Loop through each URL
-    for key in keys:
-        get_url(driver, data, key, file_path_output, get_only_first_job=True)
+    if not are_there_urls_to_gather(data, keys):
+        return
 
-    print('Gathering urls of rest of jobs')
-    # Loop through each URL
-    for key in keys:
-        get_url(driver, data, key, file_path_output, get_only_first_job=False)
+    try:
+        print('Gathering urls of first job')
+        # Loop through each URL
+        for key in keys:
+            get_url(driver, data, key, file_path_output,
+                    get_only_first_job=True)
 
-    # Quit the driver
-    driver.quit()
+        if not are_there_urls_to_gather(data, keys):
+            return
+
+        print('Gathering urls of rest of jobs')
+        # Loop through each URL
+        for key in keys:
+            get_url(driver, data, key, file_path_output,
+                    get_only_first_job=False)
+
+    finally:
+        # Ensure driver is quit properly regardless of completion
+        driver.quit()
 
 
 def main():
