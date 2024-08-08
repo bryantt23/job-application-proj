@@ -59,10 +59,10 @@ function openUrlsInNewTabs(data) {
                     console.log(`Opening job from company: ${companyName}`)
                     if (jobUrl !== 'Not found') {
                         window.open(job?.job_url, '_blank')
+                        tabsOpened++
                     }
                     job.visitedOn = Date.now()
                     companyData.lastVisitedOn = Date.now()
-                    tabsOpened++
                 }
             }
         }
