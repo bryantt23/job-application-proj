@@ -1,4 +1,4 @@
-const TABS_TO_OPEN = 15
+const TABS_TO_OPEN = 21
 let tabsOpened = 0
 
 function getJsonData() {
@@ -90,10 +90,23 @@ function downloadJson(data, fileName = 'updated_jobs.json') {
     downloadAnchor.remove()
 }
 
+function getSortedData(data) {
+    const sortedData = Object.entries(data).sort((a, b) => {
+        const comparison = Number(canVisitCompany(b[1])) - Number(canVisitCompany(a[1]))
+        if (comparison !== 0) {
+            return comparison
+        }
+        return a[1].jobs.length - b[1].jobs.length
+    })
+
+    return Object.fromEntries(sortedData)
+}
+
 async function start() {
     const jsonData = await getJsonData()
-    openUrlsInNewTabs(jsonData)
-    downloadJson(jsonData, 'companyDataOutputWithVisits.json')
+    const sortedData = getSortedData(jsonData)
+    openUrlsInNewTabs(sortedData)
+    downloadJson(jsonData, 'companyDataOutputWithUrlsAndVisits.json')
 }
 
 start()
