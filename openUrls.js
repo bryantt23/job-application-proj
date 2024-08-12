@@ -80,7 +80,26 @@ function hasOneMonthPassed(timestampMs) {
     return currentTime >= timestampMs + oneMonthInMs
 }
 
-function downloadJson(data, fileName = 'updated_jobs.json') {
+function downloadJson(data, fileNamePrefix = 'updated_jobs') {
+    // Get the current date and time
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    const hours = now.getHours()
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+
+    // Determine AM/PM
+    const amPm = hours >= 12 ? 'PM' : 'AM'
+    const formattedHours = hours % 12 || 12 // Convert to 12-hour format
+
+    // Format the date and time as MM-DD-YYYY-hh-mm-AM/PM
+    const dateTimeSuffix = `${month}-${day}-${year}-${formattedHours}-${minutes}-${amPm}`
+
+    // Create the full file name
+    const fileName = `${fileNamePrefix}-${dateTimeSuffix}.json`
+
+    // Convert the data to a JSON string and encode it for download
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 4))
     const downloadAnchor = document.createElement('a')
     downloadAnchor.setAttribute('href', dataStr)
@@ -106,7 +125,7 @@ async function start() {
     const jsonData = await getJsonData()
     const sortedData = getSortedData(jsonData)
     openUrlsInNewTabs(sortedData)
-    downloadJson(jsonData, 'companyDataOutputWithUrlsAndVisits.json')
+    downloadJson(jsonData, 'companyDataOutputWithUrlsAndVisits')
 }
 
 start()
