@@ -1,5 +1,5 @@
 const TABS_TO_OPEN = 21
-let tabsOpened = 0
+let companiesVisited = 0
 
 function getJsonData() {
     return new Promise(resolve => {
@@ -51,6 +51,7 @@ function openUrlsInNewTabs(data) {
         // the company job urls have never been opened
         // or they have been opened after a month has passed 
         if (isCompanyVisitable) {
+            let openedCompanyJob = false
             for (const job of jobs) {
                 const jobUrl = job?.job_url
 
@@ -59,15 +60,18 @@ function openUrlsInNewTabs(data) {
                     console.log(`Opening job from company: ${companyName}`)
                     if (jobUrl !== 'Not found') {
                         window.open(job?.job_url, '_blank')
-                        tabsOpened++
+                        openedCompanyJob = true
                     }
                     job.visitedOn = Date.now()
                     companyData.lastVisitedOn = Date.now()
                 }
             }
+            if (openedCompanyJob) {
+                companiesVisited++
+            }
         }
 
-        if (tabsOpened >= TABS_TO_OPEN) {
+        if (companiesVisited >= TABS_TO_OPEN) {
             break
         }
     }
