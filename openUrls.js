@@ -90,15 +90,11 @@ function downloadJson(data, fileNamePrefix = 'updated_jobs') {
     const year = now.getFullYear()
     const month = String(now.getMonth() + 1).padStart(2, '0')
     const day = String(now.getDate()).padStart(2, '0')
-    const hours = now.getHours()
+    const hours = String(now.getHours()).padStart(2, '0')
     const minutes = String(now.getMinutes()).padStart(2, '0')
 
-    // Determine AM/PM
-    const amPm = hours >= 12 ? 'PM' : 'AM'
-    const formattedHours = hours % 12 || 12 // Convert to 12-hour format
-
-    // Format the date and time as MM-DD-YYYY-hh-mm-AM/PM
-    const dateTimeSuffix = `${month}-${day}-${year}-${formattedHours}-${minutes}-${amPm}`
+    // Format the date and time as MM-DD-YYYY-HH-mm (24-hour format)
+    const dateTimeSuffix = `${month}-${day}-${year}-${hours}-${minutes}`
 
     // Create the full file name
     const fileName = `${fileNamePrefix}-${dateTimeSuffix}.json`
