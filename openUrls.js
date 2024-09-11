@@ -1,6 +1,14 @@
 const TABS_TO_OPEN = 21
 let companiesVisited = 0
 
+start()
+async function start() {
+    const jsonData = await getJsonData()
+    const sortedData = getSortedData(jsonData)
+    openUrlsInNewTabs(sortedData)
+    downloadJson(jsonData, 'companyDataOutputWithUrlsAndVisits')
+}
+
 function getJsonData() {
     return new Promise(resolve => {
         // Create an input element of type file
@@ -34,9 +42,16 @@ function getJsonData() {
     })
 }
 
-// Function to determine if a company can be visited based on its last visit timestamp
-function canVisitCompany(companyLastVisitedOn, daysBetweenVisits = 28) {
-    return (companyLastVisitedOn === undefined || haveRequiredNumberOfDaysPassed(companyLastVisitedOn, daysBetweenVisits))
+function getSortedData(data) {
+    const sortedData = Object.entries(data).sort((a, b) => {
+        const comparison = Number(canVisitCompany(b[1])) - Number(canVisitCompany(a[1]))
+        if (comparison !== 0) {
+            return comparison
+        }
+        return a[1].jobs.length - b[1].jobs.length
+    })
+
+    return Object.fromEntries(sortedData)
 }
 
 function openUrlsInNewTabs(data) {
@@ -79,6 +94,11 @@ function openUrlsInNewTabs(data) {
     console.log('Finished opening tabs.');
 }
 
+// Function to determine if a company can be visited based on its last visit timestamp
+function canVisitCompany(companyLastVisitedOn, daysBetweenVisits = 28) {
+    return (companyLastVisitedOn === undefined || haveRequiredNumberOfDaysPassed(companyLastVisitedOn, daysBetweenVisits))
+}
+
 function haveRequiredNumberOfDaysPassed(timestampMs, requiredDays) {
     const currentTime = new Date().getTime()
     const oneMonthInMs = requiredDays * 24 * 60 * 60 * 1000;
@@ -109,24 +129,3 @@ function downloadJson(data, fileNamePrefix = 'updated_jobs') {
     downloadAnchor.click()
     downloadAnchor.remove()
 }
-
-function getSortedData(data) {
-    const sortedData = Object.entries(data).sort((a, b) => {
-        const comparison = Number(canVisitCompany(b[1])) - Number(canVisitCompany(a[1]))
-        if (comparison !== 0) {
-            return comparison
-        }
-        return a[1].jobs.length - b[1].jobs.length
-    })
-
-    return Object.fromEntries(sortedData)
-}
-
-async function start() {
-    const jsonData = await getJsonData()
-    const sortedData = getSortedData(jsonData)
-    openUrlsInNewTabs(sortedData)
-    downloadJson(jsonData, 'companyDataOutputWithUrlsAndVisits')
-}
-
-start()
