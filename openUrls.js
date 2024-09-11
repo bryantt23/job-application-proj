@@ -35,8 +35,8 @@ function getJsonData() {
 }
 
 // Function to determine if a company can be visited based on its last visit timestamp
-function canVisitCompany(companyLastVisitedOn) {
-    return (companyLastVisitedOn === undefined || hasOneMonthPassed(companyLastVisitedOn))
+function canVisitCompany(companyLastVisitedOn, daysBetweenVisits = 28) {
+    return (companyLastVisitedOn === undefined || haveRequiredNumberOfDaysPassed(companyLastVisitedOn, daysBetweenVisits))
 }
 
 function openUrlsInNewTabs(data) {
@@ -46,10 +46,11 @@ function openUrlsInNewTabs(data) {
         const { jobs } = companyData
 
         const companyLastVisitedOn = companyData?.lastVisitedOn
-        const isCompanyVisitable = canVisitCompany(companyLastVisitedOn)
+        const minimumDaysBetweenVisit = 7 * 7
+        const isCompanyVisitable = canVisitCompany(companyLastVisitedOn, minimumDaysBetweenVisit)
 
         // the company job urls have never been opened
-        // or they have been opened after a month has passed 
+        // or they have been opened after required time has passed
         if (isCompanyVisitable) {
             let openedCompanyJob = false
             for (const job of jobs) {
@@ -78,9 +79,9 @@ function openUrlsInNewTabs(data) {
     console.log('Finished opening tabs.');
 }
 
-function hasOneMonthPassed(timestampMs) {
+function haveRequiredNumberOfDaysPassed(timestampMs, requiredDays) {
     const currentTime = new Date().getTime()
-    const oneMonthInMs = 30 * 24 * 60 * 60 * 1000;
+    const oneMonthInMs = requiredDays * 24 * 60 * 60 * 1000;
     return currentTime >= timestampMs + oneMonthInMs
 }
 
