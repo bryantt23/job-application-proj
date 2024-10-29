@@ -1,6 +1,6 @@
 {
     //https://himalayas.app/jobs
-    const PAGES_TO_OPEN = 3
+    const PAGES_TO_OPEN = 21
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'application/json'
@@ -103,6 +103,7 @@
 
         for (let i = 0; i < PAGES_TO_OPEN; i++) {
             await fetchCompanyDataWithRetry(21, 1000)
+            await delay(7000)
             console.log(`On page ${i + 1}`)
             await clickNext()
         }
