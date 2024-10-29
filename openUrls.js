@@ -1,4 +1,4 @@
-const TABS_TO_OPEN = 21
+const TABS_TO_OPEN = 21, MINIMUM_WEEKS_BETWEEN_VISITS = 12
 let companiesVisited = 0
 
 start()
@@ -61,7 +61,7 @@ function openUrlsInNewTabs(data) {
         const { jobs } = companyData
 
         const companyLastVisitedOn = companyData?.lastVisitedOn
-        const minimumDaysBetweenVisit = 7 * 7
+        const minimumDaysBetweenVisit = MINIMUM_WEEKS_BETWEEN_VISITS * 7
         const isCompanyVisitable = canVisitCompany(companyLastVisitedOn, minimumDaysBetweenVisit)
 
         // the company job urls have never been opened
